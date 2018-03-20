@@ -36,7 +36,7 @@ def fill_map (list):
 			sub.append([random_number_generator (0,1),random_number_generator (0,1),random_number_generator (0,1),random_number_generator (0,1),0])
 		list.append(sub)
 
-def draw_maze (list):
+def draw_maze_old (list):
 	#draw vertical lines
 	for i in range (0, ROWS+1):
 		ctx.move_to(0,  i*CELL_SIZE)
@@ -49,9 +49,32 @@ def draw_maze (list):
 		ctx.line_to(i*CELL_SIZE, 1)  # Line to (x,y)
 		ctx.set_line_width(0.002)
 		ctx.stroke()
-	
-	
 
+def draw_maze (list):
+	for i in range (0, ROWS):
+		for j in range (0, COLUMNS):
+			#check north
+			if list [i][j][0] == 1 or list [i][j-1][2] == 1:
+				#first one is x, second y direction
+				ctx.move_to(i * CELL_SIZE, j*CELL_SIZE - CELL_SIZE)
+				#ctx.set_font_size(CELL_SIZE)
+				ctx.line_to(i * CELL_SIZE + CELL_SIZE, j*CELL_SIZE - CELL_SIZE)  # Line to (x,y)
+				ctx.set_line_width(0.002)
+
+				
+def draw_debug (list):
+	for i in range (0, ROWS):
+		for j in range (0, COLUMNS):
+			ctx.select_font_face('Sans')
+			ctx.set_font_size(CELL_SIZE*0.15) # em-square height is 90 pixels
+			ctx.move_to(i*CELL_SIZE, j*CELL_SIZE+CELL_SIZE/2) # move to point (x, y) = (10, 90)
+			ctx.set_source_rgb(0, 0, 0) # yellow
+			
+			text_to_print = list[i][j]
+			ctx.show_text("%s" %text_to_print)
+				
+			
+			
 #MAIN LOOP
 
 #choose random starting point
@@ -66,8 +89,11 @@ ctx = cairo.Context(surface)
 ctx.scale(WIDTH, HEIGHT)  # Normalizing the canvas
 
 draw_maze (maze)
+draw_debug (maze)
+
+ctx.stroke()
 surface.write_to_png("maze.png")  # Output to PNG
 
 print "ROW %d, COLUMN %d\n" % (row, column)
-print_maze (maze)
+#print_maze (maze)
 print maze [5][5][1]
