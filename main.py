@@ -7,6 +7,7 @@ import cairo
 #CONSTANTS
 ROWS = 6
 COLUMNS = 6
+LOOPS = ROWS*COLUMNS
 maze = []
 WIDTH, HEIGHT = 512, 512
 START_X, START_Y = WIDTH/2, 0
@@ -16,6 +17,7 @@ DEBUG_MODE = 1
 #cell information
 #north, east, south, west, visited
 cell = [1,1,1,1,0]
+cell_list = []
 
 #FUNCTION DECLARATIONS
 
@@ -37,20 +39,70 @@ def fill_map (list):
 			sub.append([random_number_generator (0,1),random_number_generator (0,1),random_number_generator (0,1),random_number_generator (0,1),0])
 		list.append(sub)
 
-def draw_maze_old (list):
-	#draw vertical lines
-	for i in range (0, ROWS+1):
-		ctx.move_to(0,  i*CELL_SIZE)
-		ctx.line_to(1, i*CELL_SIZE)  # Line to (x,y)
-		ctx.set_line_width(0.002)
-		ctx.stroke()
-	#draw horizontal lines
-	for i in range (0, COLUMNS+1):
-		ctx.move_to(i*CELL_SIZE,  0)
-		ctx.line_to(i*CELL_SIZE, 1)  # Line to (x,y)
-		ctx.set_line_width(0.002)
-		ctx.stroke()
+#uses growing tree algorithm to build the maze
+#http://weblog.jamisbuck.org/2011/1/27/maze-generation-growing-tree-algorithm
+def build_maze (c_list, maze_list):
 
+	for xyz in range (0,LOOPS):
+		cell_list_size = len(c_list)
+		#choose random cell where to start
+		random_cell = random_number_generator(0, cell_list_size-1)
+		grid_row = c_list[random_cell][0]
+		print type(grid_row)
+		grid_column = c_list [random_cell][1]
+		
+		#convert list to int
+		grid_row = grid_row[0]
+		grid_column = grid_column[0]
+		print type(grid_row)
+
+
+		#choose random direction, nesw
+		direction_to_carve = random_number_generator(0, 3)
+		#no switch case in python!!11 :(
+		#north
+		if direction_to_carve == 0:
+			#check that list index is not out of range
+			if grid_row > 0:
+				#add new cell to c_list
+				sub = [grid_row-1],[grid_column]
+				c_list.append(sub)
+				#carve walls from both cells
+				maze_list [grid_row][grid_column][0] = 0
+				maze_list [grid_row-1][grid_column][3] = 0
+		#east
+		elif direction_to_carve == 1:
+			if grid_column < COLUMNS:
+				#add new cell to c_list
+				sub = [grid_row],[grid_column+1]
+				c_list.append(sub)
+				#carve walls from both cells
+				maze_list [grid_row][grid_column][1] = 0
+				maze_list [grid_row-1][grid_column+1][4] = 0
+		#south
+		elif direction_to_carve == 2:
+			if grid_row < ROWS:
+				#add new cell to c_list
+				sub = [grid_row+1],[grid_column]
+				c_list.append(sub)
+				#carve walls from both cells
+				maze_list [grid_row][grid_column][3] = 0
+				maze_list [grid_row+1][grid_column][0] = 0
+		#west
+		elif direction_to_carve == 3:
+			if grid_column > 0:
+				#add new cell to c_list
+				sub = [grid_row-1],[grid_column-1]
+				c_list.append(sub)
+				#carve walls from both cells
+				maze_list [grid_row][grid_column][4] = 0
+				maze_list [grid_row-1][grid_column-1][1] = 0
+		else:
+			#remove random_cell from clist
+			c_list.remove(random_cell)
+
+		
+		
 #Draw maze doesn't check if cell next to it has walls
 def draw_maze (list):
 	ctx.set_line_width(0.003)
@@ -88,26 +140,33 @@ def draw_debug (list):
 			ctx.set_source_rgb(0, 0, 0) # yellow
 			ctx.show_text("N%dE%dS%dW%d" % (list[i][j][0],list[i][j][1],list[i][j][2],list[i][j][3]))
 			
+def choose_random_cell (list):
+	sub = [[random_number_generator(0, COLUMNS-1)],[random_number_generator(0, ROWS-1)]]
+	list.append(sub)
+
 #MAIN LOOP
 
-#choose random starting point
-row = random_number_generator(0, COLUMNS-1)
-column = random_number_generator(0, ROWS-1)
-#fill map with randoms atm
-fill_map(maze)
+
+fill_map (maze)
 
 #cairo initialization
 surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, WIDTH, HEIGHT)
 ctx = cairo.Context(surface)
 ctx.scale(WIDTH, HEIGHT)  # Normalizing the canvas
 
+#choose random starting point
+choose_random_cell(cell_list)
+
+build_maze(cell_list, maze)
+
 draw_maze (maze)
+
 if DEBUG_MODE == 1:
 	draw_debug (maze)
 
 ctx.stroke()
 surface.write_to_png("maze.png")  # Output to PNG
 
-print "ROW %d, COLUMN %d\n" % (row, column)
-#print_maze (maze)
-print maze [5][5][1]
+
+print cell_list
+
