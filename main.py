@@ -130,25 +130,102 @@ def build_maze_old (c_list, maze_list):
 		
 		
 def build_maze (c_list, maze_list):		
-	for xyz in range (0,LOOPS):
+	for xyz in range (0,LOOPS*1000):
 		#choose random cell from c_list
 		#choose random direction
 			#check if it's unvisited
 			#if so carve path there and add location to c_list
+			#if not check next direction until all directions have been checked
+		#remove visited cell from list
 		#repeat
+		
 		
 		#choose random cell
 		cell_list_size = len(c_list)
 		#choose random cell where to start
-		random_cell = random_number_generator(0, cell_list_size-1)
+		random_cell = 0
+		if cell_list_size == 0:
+			break
+		if cell_list_size > 0:
+			random_cell = random_number_generator(0, cell_list_size-1)
+		
 		grid_row = c_list[random_cell][0]
 		grid_column = c_list[random_cell][1]
+		#change to int
 		grid_row = grid_row[0]
 		grid_column = grid_column[0]
 		
-		#random direction
-		random_direction = random_number_generator(0, 3)
-		
+		#do until one legal direction found or all directions checked
+		found_legal_direction = 0
+		n = e = s = w = 0
+		while (n == 0 or e == 0 or s == 0 or w == 0) and found_legal_direction == 0:
+			#random direction, not the best way
+			random_direction = random_number_generator(0, 3)
+			#check if unvisited and legal direction
+			#north
+			if random_direction == 0:
+				n = 1
+				
+				if grid_row > 0 and maze_list[grid_row-1][grid_column][4] == 0:
+					#add direction to c_list
+					sub = [grid_row-1],[grid_column]
+					c_list.append(sub)
+					#add visited flag
+					maze_list[grid_row-1][grid_column][4] = 1
+					#carve wall
+					maze_list[grid_row][grid_column][0] = 0
+					maze_list[grid_row-1][grid_column][2] = 0
+					found_legal_direction = 1
+			#east
+			elif random_direction == 1:
+				e = 1
+				
+				if grid_column < COLUMNS-1 and maze_list[grid_row][grid_column+1][4] == 0:
+					#add direction to c_list
+					sub = [grid_row],[grid_column+1]
+					c_list.append(sub)
+					#add visited flag
+					maze_list[grid_row][grid_column+1][4] = 1
+					#carve wall
+					maze_list[grid_row][grid_column][1] = 0
+					maze_list[grid_row][grid_column+1][3] = 0
+					found_legal_direction = 1
+			#south
+			elif random_direction == 2:
+				s = 1
+				
+				if grid_row < ROWS-1 and maze_list[grid_row+1][grid_column][4] == 0:
+					#add direction to c_list
+					sub = [grid_row+1],[grid_column]
+					c_list.append(sub)
+					#add visited flag
+					maze_list[grid_row+1][grid_column][4] = 1
+					#carve wall
+					maze_list[grid_row][grid_column][2] = 0
+					maze_list[grid_row+1][grid_column][0] = 0
+					found_legal_direction = 1
+			#west
+			elif random_direction == 3:
+				w = 1
+				
+				if grid_column > 0 and maze_list[grid_row][grid_column-1][4] == 0:
+					#add direction to c_list
+					sub = [grid_row],[grid_column-1]
+					c_list.append(sub)
+					#add visited flag
+					maze_list[grid_row][grid_column-1][4] = 1
+					#carve wall
+					maze_list[grid_row][grid_column][3] = 0
+					maze_list[grid_row][grid_column-1][1] = 0
+					found_legal_direction = 1
+		#remove cell from list
+		if (n == 1 and e == 1 and s == 1 and w == 1):
+			#pass
+			#print("poisto")
+			if found_legal_direction == 1:
+				c_list.pop(random_cell)
+		#print ("%d%d%d%d" % (n, e, s, w))
+	print (xyz)		
 		
 		
 #Draw maze doesn't check if cell next to it has walls
