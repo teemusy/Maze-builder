@@ -5,12 +5,13 @@ import random
 import cairo
 
 #CONSTANTS
-ROWS = 10
-COLUMNS = 10
+ROWS = 6
+COLUMNS = 6
 maze = []
 WIDTH, HEIGHT = 512, 512
 START_X, START_Y = WIDTH/2, 0
 CELL_SIZE = 1.0/ROWS
+DEBUG_MODE = 1
 
 #cell information
 #north, east, south, west, visited
@@ -50,30 +51,42 @@ def draw_maze_old (list):
 		ctx.set_line_width(0.002)
 		ctx.stroke()
 
+#Draw maze doesn't check if cell next to it has walls
 def draw_maze (list):
+	ctx.set_line_width(0.003)
 	for i in range (0, ROWS):
 		for j in range (0, COLUMNS):
-			#check north
-			if list [i][j][0] == 1 or list [i][j-1][2] == 1:
+			#draw north
+			if list [i][j][0] == 1:
 				#first one is x, second y direction
-				ctx.move_to(i * CELL_SIZE, j*CELL_SIZE - CELL_SIZE)
-				#ctx.set_font_size(CELL_SIZE)
-				ctx.line_to(i * CELL_SIZE + CELL_SIZE, j*CELL_SIZE - CELL_SIZE)  # Line to (x,y)
-				ctx.set_line_width(0.002)
+				ctx.move_to(i * CELL_SIZE, j*CELL_SIZE)
+				ctx.line_to(i * CELL_SIZE + CELL_SIZE, j*CELL_SIZE)  # Line to (x,y)	
+			#draw east
+			if list [i][j][1] == 1:
+				#first one is x, second y direction
+				ctx.move_to(i * CELL_SIZE + CELL_SIZE, j*CELL_SIZE)
+				ctx.line_to(i * CELL_SIZE + CELL_SIZE, j*CELL_SIZE + CELL_SIZE)  # Line to (x,y)
+			#draw south
+			if list [i][j][2] == 1:
+				#first one is x, second y direction
+				ctx.move_to(i * CELL_SIZE, j*CELL_SIZE+CELL_SIZE)
+				ctx.line_to(i * CELL_SIZE + CELL_SIZE, j*CELL_SIZE+CELL_SIZE)  # Line to (x,y)
+			#draw west
+			if list [i][j][3] == 1:
+				#first one is x, second y direction
+				ctx.move_to(i * CELL_SIZE, j*CELL_SIZE)
+				ctx.line_to(i * CELL_SIZE, j*CELL_SIZE + CELL_SIZE)  # Line to (x,y)
+
 
 				
 def draw_debug (list):
 	for i in range (0, ROWS):
 		for j in range (0, COLUMNS):
 			ctx.select_font_face('Sans')
-			ctx.set_font_size(CELL_SIZE*0.15) # em-square height is 90 pixels
-			ctx.move_to(i*CELL_SIZE, j*CELL_SIZE+CELL_SIZE/2) # move to point (x, y) = (10, 90)
+			ctx.set_font_size(CELL_SIZE*0.10)
+			ctx.move_to(i*CELL_SIZE*1.1, j*CELL_SIZE+CELL_SIZE/2)
 			ctx.set_source_rgb(0, 0, 0) # yellow
-			
-			text_to_print = list[i][j]
-			ctx.show_text("%s" %text_to_print)
-				
-			
+			ctx.show_text("N%dE%dS%dW%d" % (list[i][j][0],list[i][j][1],list[i][j][2],list[i][j][3]))
 			
 #MAIN LOOP
 
@@ -89,7 +102,8 @@ ctx = cairo.Context(surface)
 ctx.scale(WIDTH, HEIGHT)  # Normalizing the canvas
 
 draw_maze (maze)
-draw_debug (maze)
+if DEBUG_MODE == 1:
+	draw_debug (maze)
 
 ctx.stroke()
 surface.write_to_png("maze.png")  # Output to PNG

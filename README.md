@@ -1,2 +1,2 @@
 # Maze-builder
-Generate maze with python and cairo
+Generate png of maze with python and cairo.
