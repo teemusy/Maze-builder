@@ -20,7 +20,7 @@ DEBUG_MODE = 0
 
 
 maze = []
-
+c_list = []
 #FUNCTION DECLARATIONS
 
 def print_maze (maze):
@@ -77,7 +77,114 @@ def build_binary_maze (maze_list):
 					
 		j = 0
 
+#Growing tree algo
+def build_tree_maze (c_list, maze_list):
 
+	for xyz in range (0,LOOPS*100):
+		#choose random cell from c_list
+		#choose random direction
+			#check if it's unvisited
+			#if so carve path there and add location to c_list
+			#if not check next direction until all directions have been checked
+		#remove visited cell from list
+		#repeat
+		cell_list_size = len(c_list)
+		#break loop if cell list size == 0
+		if cell_list_size == 0:
+			break
+		
+		#choose random cell where to start
+		random_cell = 0
+		if cell_list_size > 0:
+			random_cell = random_number_generator(0, cell_list_size-1)
+		
+		grid_row = c_list[random_cell][0]
+		grid_column = c_list [random_cell][1]
+		
+		#convert list to int
+		grid_row = grid_row[0]
+		grid_column = grid_column[0]
+		n = e = s = w = 0
+		found_legal_direction = 0
+		#loop until all directions checked or found legal direction
+		while (n == 0 or e == 0 or s == 0 or w == 0) and found_legal_direction == 0:
+			direction_to_carve = random_number_generator (0, 3)
+			if direction_to_carve == 0:
+				n = 1		
+			elif direction_to_carve == 1:
+				e = 1		
+			elif direction_to_carve == 2:
+				s = 1		
+			elif direction_to_carve == 3:
+				w = 1
+			
+			
+			#north
+			if direction_to_carve == 0:
+				
+				#check if north is legal direction and cell in north has not been visited
+				if grid_column > 0:
+					if maze_list[grid_row][grid_column-1][4] == 0:
+						#add direction to c_list
+						sub = [grid_row],[grid_column-1]
+						c_list.append(sub)
+						#add visited flag
+						maze_list[grid_row][grid_column-1][4] = 1
+						#carve wall
+						maze_list[grid_row][grid_column][0] = 0
+						maze_list[grid_row][grid_column-1][2] = 0
+						found_legal_direction = 1			
+			
+			#east
+			if direction_to_carve == 1:
+				
+				#check if east is legal direction and cell in east has not been visited
+				if grid_row < COLUMNS-1:
+						if maze_list[grid_row+1][grid_column][4] == 0:
+							#add direction to c_list
+							sub = [grid_row+1],[grid_column]
+							c_list.append(sub)
+							#add visited flag
+							maze_list[grid_row+1][grid_column][4] = 1
+							#carve wall
+							maze_list[grid_row][grid_column][1] = 0
+							maze_list[grid_row+1][grid_column][3] = 0
+							found_legal_direction = 1			
+					
+			#south
+			if direction_to_carve == 2:
+				
+				#check if south is legal direction and cell in south has not been visited
+				if grid_column < ROWS-1:
+					if maze_list[grid_row][grid_column+1][4] == 0:
+						#add direction to c_list
+						sub = [grid_row],[grid_column+1]
+						c_list.append(sub)
+						#add visited flag
+						maze_list[grid_row][grid_column+1][4] = 1
+						#carve wall
+						maze_list[grid_row][grid_column][2] = 0
+						maze_list[grid_row][grid_column+1][0] = 0
+						found_legal_direction = 1			
+					
+			#west
+			if direction_to_carve == 3:
+				
+				#check if west is legal direction and cell in west has not been visited
+				if grid_row > 0 and maze_list[grid_row-1][grid_column][4] == 0:
+					#add direction to c_list
+					sub = [grid_row-1],[grid_column]
+					c_list.append(sub)
+					#add visited flag
+					maze_list[grid_row-1][grid_column][4] = 1
+					#carve wall
+					maze_list[grid_row][grid_column][3] = 0
+					maze_list[grid_row-1][grid_column][1] = 0
+					found_legal_direction = 1
+		
+		if n == 1 and e == 1 and s == 1 and w == 1:
+			c_list.pop(random_cell)
+		
 #Draw maze doesn't check if cell next to it has walls
 def draw_maze (list):
 	ctx.set_line_width(0.003)
@@ -115,6 +222,10 @@ def draw_debug (list):
 			ctx.set_source_rgb(0, 0, 0) # yellow
 			ctx.show_text("N%dE%dS%dW%dv%d" % (list[i][j][0],list[i][j][1],list[i][j][2],list[i][j][3],list[i][j][4]))
 			
+			
+def choose_random_cell (list):
+	sub = [[random_number_generator(0, COLUMNS-1)],[random_number_generator(0, ROWS-1)]]
+	list.append(sub)
 
 #MAIN LOOP
 
@@ -126,9 +237,10 @@ surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, WIDTH, HEIGHT)
 ctx = cairo.Context(surface)
 ctx.scale(WIDTH, HEIGHT)  # Normalizing the canvas
 
+choose_random_cell(c_list)
 
-#build_maze(cell_list, maze)
-build_binary_maze(maze)
+#build_binary_maze(maze)
+build_tree_maze(c_list, maze)
 
 draw_maze (maze)
 
@@ -136,7 +248,7 @@ if DEBUG_MODE == 1:
 	#maze[2][1][0] = 5
 	draw_debug (maze)
 
-	
+print (c_list)
 ctx.stroke()
 surface.write_to_png("maze.png")  # Output to PNG
 
