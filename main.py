@@ -9,16 +9,25 @@ print(sys.version)
 #TODO
 #add library for directions
 
+
 #CONSTANTS
 ROWS = 50
 COLUMNS = 50
 LOOPS = ROWS*COLUMNS
 WIDTH, HEIGHT = 512, 512
 START_X, START_Y = WIDTH/2, 0
-CELL_SIZE = 1.0/ROWS
+
 DEBUG_MODE = 0
 
+#cmd line arguments
 
+if sys.argv[len(sys.argv)-1] == "-d":
+	DEBUG_MODE = 1
+	ROWS = 5
+	COLUMNS = 5
+	print ("Debug mode on")
+
+CELL_SIZE = 1.0/ROWS
 maze = []
 c_list = []
 #FUNCTION DECLARATIONS
