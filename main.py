@@ -26,6 +26,10 @@ if sys.argv[len(sys.argv)-1] == "-d":
 	ROWS = 5
 	COLUMNS = 5
 	print ("Debug mode on")
+if sys.argv[len(sys.argv)-1] == "-b":
+	algo_chooser = 1
+else:
+	algo_chooser = 0
 
 CELL_SIZE = 1.0/ROWS
 maze = []
@@ -248,8 +252,10 @@ ctx.scale(WIDTH, HEIGHT)  # Normalizing the canvas
 
 choose_random_cell(c_list)
 
-#build_binary_maze(maze)
-build_tree_maze(c_list, maze)
+if algo_chooser == 1:
+	build_binary_maze(maze)
+else:
+	build_tree_maze(c_list, maze)
 
 draw_maze (maze)
 
