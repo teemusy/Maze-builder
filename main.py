@@ -4,15 +4,17 @@ import math
 import random
 import cairo
 import sys
-print(sys.version)
+import os
+#print(sys.version)
+from tkinter import *
 
 #TODO
 #add library for directions
 
 
 #CONSTANTS
-ROWS = 50
-COLUMNS = 50
+ROWS = 10
+COLUMNS = 10
 LOOPS = ROWS*COLUMNS
 WIDTH, HEIGHT = 512, 512
 START_X, START_Y = WIDTH/2, 0
@@ -21,20 +23,21 @@ DEBUG_MODE = 0
 
 #cmd line arguments
 
-if sys.argv[len(sys.argv)-1] == "-d":
-	DEBUG_MODE = 1
+if DEBUG_MODE == 1:
 	ROWS = 5
 	COLUMNS = 5
 	print ("Debug mode on")
-if sys.argv[len(sys.argv)-1] == "-b":
-	algo_chooser = 1
-else:
-	algo_chooser = 0
 
 CELL_SIZE = 1.0/ROWS
 maze = []
 c_list = []
+
+
 #FUNCTION DECLARATIONS
+
+def quit_win():
+    window.destroy()
+    sys.exit(0)
 
 def print_maze (maze):
 	for i in range (0, ROWS):
@@ -48,7 +51,9 @@ def random_number_generator (min, max):
 	
 def fill_map (list):
 	for i in range (0, ROWS):
+		
 		sub = []
+		del sub[:]
 		for j in range (0, COLUMNS):
 			sub.append([1,1,1,1,0])
 		list.append(sub)
@@ -62,16 +67,16 @@ def build_binary_maze (maze_list):
 			#0 north, 1 west
 			#x,y coordinates
 			random_direction = random_number_generator(0, 1)
-			print ("Random %d" % (random_direction))
-			print ("i:%d j:%d" % (i, j))
+			#print ("Random %d" % (random_direction))
+			#print ("i:%d j:%d" % (i, j))
 			
 			if random_direction == 0:
 				if j > 0: 
-					print("Carve north")
+					#print("Carve north")
 					maze_list [i][j][0] = 0
 					maze_list [i][j-1][2] = 0
 				elif i > 0:
-					print("Carve west")
+					#print("Carve west")
 					maze_list [i][j][3] = 0
 					maze_list [i-1][j][1] = 0
 				
@@ -79,11 +84,11 @@ def build_binary_maze (maze_list):
 					
 			if random_direction == 1:
 				if i > 0:
-					print("Carve west")
+					#print("Carve west")
 					maze_list [i][j][3] = 0
 					maze_list [i-1][j][1] = 0
 				elif j > 0:
-					print("Carve north")
+					#print("Carve north")
 					maze_list [i][j][0] = 0
 					maze_list [i][j-1][2] = 0
 					
@@ -239,32 +244,66 @@ def draw_debug (list):
 def choose_random_cell (list):
 	sub = [[random_number_generator(0, COLUMNS-1)],[random_number_generator(0, ROWS-1)]]
 	list.append(sub)
+	
+def algo_tree ():
+	del maze[:]
+	del c_list[:]
+	fill_map (maze)
+	choose_random_cell(c_list)
+	build_tree_maze(c_list, maze)
+	draw_maze (maze)
+	ctx.stroke()
+	try:
+		os.remove ("maze.png")
+		surface.write_to_png("maze.png")  # Output to PNG
+	except:
+		surface.write_to_png("maze.png")  # Output to PNG
 
+def binary_tree ():
+	del maze[:]
+	fill_map (maze)
+	build_binary_maze(maze)
+	draw_maze (maze)
+	ctx.stroke()
+	try:
+		os.remove ("maze.png")
+		surface.write_to_png("maze.png")  # Output to PNG
+	except:
+		surface.write_to_png("maze.png")  # Output to PNG
+	
 #MAIN LOOP
 
-#init map
-fill_map (maze)
 
 #cairo initialization
 surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, WIDTH, HEIGHT)
 ctx = cairo.Context(surface)
 ctx.scale(WIDTH, HEIGHT)  # Normalizing the canvas
 
-choose_random_cell(c_list)
 
-if algo_chooser == 1:
-	build_binary_maze(maze)
+
+if DEBUG_MODE == 0:
+	window = Tk()
+
+	maze_generator = Label(window, text = "Maze generator")
+	maze_generator.pack()
+
+	binary_button = Button(window, text = "Binary tree algorithm", command = binary_tree)
+	tree_button = Button(window, text = "Growing tree algorithm", command = algo_tree)
+	quit_button = Button(window, text = "Quit", command = quit_win)
+
+	binary_button.pack(side = TOP)
+	tree_button.pack(side = TOP)
+	quit_button.pack(side = BOTTOM)
+
+	window.mainloop()
+
 else:
-	build_tree_maze(c_list, maze)
-
-draw_maze (maze)
-
-if DEBUG_MODE == 1:
-	#maze[2][1][0] = 5
+	build_binary_maze(maze)
 	draw_debug (maze)
+	ctx.stroke()
+	surface.write_to_png("maze.png")  # Output to PNG
+	print (c_list)
 
-print (c_list)
-ctx.stroke()
-surface.write_to_png("maze.png")  # Output to PNG
+
 
 
