@@ -36,7 +36,7 @@ c_list = []
 #FUNCTION DECLARATIONS
 
 def quit_win():
-    window.destroy()
+    root.destroy()
     sys.exit(0)
 
 def print_maze (maze):
@@ -264,9 +264,11 @@ def algo_tree ():
 		os.remove ("maze.png")
 		#print_maze (maze)
 		surface.write_to_png("maze.png")  # Output to PNG
+		show_image()
 	except:
 		#print_maze (maze)
 		surface.write_to_png("maze.png")  # Output to PNG
+		show_image()
 
 def binary_tree ():
 
@@ -280,10 +282,23 @@ def binary_tree ():
 		os.remove ("maze.png")
 		#print_maze (maze)
 		surface.write_to_png("maze.png")  # Output to PNG
+		show_image()
+		
 
 	except:
 		#print_maze (maze)
 		surface.write_to_png("maze.png")  # Output to PNG
+		show_image()
+
+		
+def show_image():
+
+	#root.update()
+	#root.update_idletasks()
+	root.call(logo,"read", "maze.png")
+	
+	
+	
 	
 #MAIN LOOP
 
@@ -296,20 +311,27 @@ ctx.scale(WIDTH, HEIGHT)  # Normalizing the canvas
 
 
 if DEBUG_MODE == 0:
-	window = Tk()
+	root = Tk()
+	root.geometry("800x600")
+	root.title("Maze generator")
 
-	maze_generator = Label(window, text = "Maze generator")
-	maze_generator.pack()
+	#maze_generator = Label(root, text = "Maze generator")
+	#maze_generator.pack()
 
-	binary_button = Button(window, text = "Binary tree algorithm", command = binary_tree)
-	tree_button = Button(window, text = "Growing tree algorithm", command = algo_tree)
-	quit_button = Button(window, text = "Quit", command = quit_win)
-
+	binary_button = Button(root, text = "Binary tree algorithm", command = binary_tree)
+	tree_button = Button(root, text = "Growing tree algorithm", command = algo_tree)
+	quit_button = Button(root, text = "Quit", command = quit_win)
 	binary_button.pack(side = TOP)
 	tree_button.pack(side = TOP)
 	quit_button.pack(side = BOTTOM)
+	
+	
+	logo = PhotoImage(file="maze.png")
+	w1 = Label(root, image=logo).pack()
 
-	window.mainloop()
+
+
+	root.mainloop()
 
 else:
 	build_binary_maze(maze)
