@@ -325,9 +325,18 @@ if DEBUG_MODE == 0:
 	tree_button.pack(side = TOP)
 	quit_button.pack(side = BOTTOM)
 	
-	
-	logo = PhotoImage(file="maze.png")
-	w1 = Label(root, image=logo).pack()
+	try:
+		logo = PhotoImage(file="maze.png")
+		w1 = Label(root, image=logo).pack()
+	except:
+		f = open('maze.png', 'w')
+		ctx.set_source_rgba(1, 1, 1, 1) #set background to white to flush old color
+		ctx.rectangle(0, 0, WIDTH, HEIGHT)
+		ctx.fill()
+		ctx.stroke()
+		surface.write_to_png("maze.png")  # Output to PNG
+		logo = PhotoImage(file="maze.png")
+		w1 = Label(root, image=logo).pack()
 
 
 
