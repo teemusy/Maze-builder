@@ -13,8 +13,8 @@ from tkinter import *
 
 
 #CONSTANTS
-ROWS = 10
-COLUMNS = 10
+ROWS = 50
+COLUMNS = 50
 LOOPS = ROWS*COLUMNS
 WIDTH, HEIGHT = 512, 512
 START_X, START_Y = WIDTH/2, 0
@@ -42,9 +42,9 @@ def quit_win():
 def print_maze (maze):
 	for i in range (0, ROWS):
 		for j in range (0, COLUMNS):
-			print (maze[i][j]),
+			print (maze[i][j][0], end=""),
 		print ("\n")
-	
+	print ("\n\n")
 		
 def random_number_generator (min, max):	
 	return random.randint(min, max)
@@ -53,7 +53,7 @@ def fill_map (list):
 	for i in range (0, ROWS):
 		
 		sub = []
-		del sub[:]
+		sub.clear()
 		for j in range (0, COLUMNS):
 			sub.append([1,1,1,1,0])
 		list.append(sub)
@@ -205,6 +205,10 @@ def build_tree_maze (c_list, maze_list):
 		
 #Draw maze doesn't check if cell next to it has walls
 def draw_maze (list):
+	ctx.set_source_rgba(1, 1, 1, 1) #set background to white to flush old color
+	ctx.rectangle(0, 0, WIDTH, HEIGHT)
+	ctx.fill()
+	ctx.set_source_rgb(0, 0, 0)
 	ctx.set_line_width(0.003)
 	for i in range (0, ROWS):
 		for j in range (0, COLUMNS):
@@ -246,8 +250,11 @@ def choose_random_cell (list):
 	list.append(sub)
 	
 def algo_tree ():
-	del maze[:]
-	del c_list[:]
+
+	#del maze[:]
+	#del c_list[:]
+	maze.clear()
+	c_list.clear()
 	fill_map (maze)
 	choose_random_cell(c_list)
 	build_tree_maze(c_list, maze)
@@ -255,20 +262,27 @@ def algo_tree ():
 	ctx.stroke()
 	try:
 		os.remove ("maze.png")
+		#print_maze (maze)
 		surface.write_to_png("maze.png")  # Output to PNG
 	except:
+		#print_maze (maze)
 		surface.write_to_png("maze.png")  # Output to PNG
 
 def binary_tree ():
-	del maze[:]
+
+	#del maze[:]
+	maze.clear()
 	fill_map (maze)
 	build_binary_maze(maze)
 	draw_maze (maze)
 	ctx.stroke()
 	try:
 		os.remove ("maze.png")
+		#print_maze (maze)
 		surface.write_to_png("maze.png")  # Output to PNG
+
 	except:
+		#print_maze (maze)
 		surface.write_to_png("maze.png")  # Output to PNG
 	
 #MAIN LOOP
